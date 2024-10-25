@@ -1,34 +1,43 @@
 const processRepetitions = {};
 const processCounts = {};
-let allocationInProgress = false; // Flag para controlar o atraso global
-let simulationRunning = false; // Flag para controlar o estado da simulação
-let simulationInterval; // Armazena o intervalo da simulação
+let allocationInProgress = false;
+let simulationRunning = false;
+let simulationInterval;
+let activeAnimations = [];
+let activeTimeouts = [];
 
 const simulationButton = document.querySelector('.simulation-btn');
 simulationButton.addEventListener('click', () => {
-    toggleSimulation(); // Alterna o estado da simulação
+    toggleSimulation();
 });
 
 function toggleSimulation() {
-    simulationRunning = !simulationRunning; // Alterna o estado
+    simulationRunning = !simulationRunning;
     simulationButton.textContent = simulationRunning ? 'Parar Simulação' : 'Iniciar Simulação';
 
     if (simulationRunning) {
-        tryAllocateProcess(); // Inicia a alocação contínua
+        simulationButton.classList.add('stop-btn');
+        tryAllocateProcess();
     } else {
-        clearInterval(simulationInterval); // Para a simulação
+        simulationButton.classList.remove('stop-btn');
+        pauseAllProcesses();
+        clearAllBoxes();
+        moveAllToFinalizedWithDelay();
+        clearInterval(simulationInterval);
+        logCancellationDetails();
     }
 }
 
 function tryAllocateProcess() {
-    if (!simulationRunning) return; // Interrompe se a simulação não estiver ativa
+    if (!simulationRunning) return;
     if (allocationInProgress) {
-        setTimeout(tryAllocateProcess, 500); // Reagenda a tentativa após 0,5s
+        const timeout = setTimeout(tryAllocateProcess, 500);
+        activeTimeouts.push(timeout);
         return;
     }
 
     const processList = document.querySelector('.process-column:first-child .process-list');
-    const nextProcess = processList.querySelector('li'); // Pega o primeiro processo da lista
+    const nextProcess = processList.querySelector('li');
 
     if (nextProcess) {
         const processName = nextProcess.textContent;
@@ -37,31 +46,31 @@ function tryAllocateProcess() {
             const allocated = allocateProcess(processName);
             if (allocated) {
                 incrementProcessCount(processName);
-                processList.removeChild(nextProcess); // Remove da lista de próximos processos
+                processList.removeChild(nextProcess);
             }
         }
     }
 
-    simulationInterval = setTimeout(tryAllocateProcess, 500); // Recheca após 0,5s
+    simulationInterval = setTimeout(tryAllocateProcess, 500);
+    activeTimeouts.push(simulationInterval);
 }
 
 function allocateProcess(processName) {
     const freeBoxes = document.querySelectorAll('.box-wrapper');
-    let allocated = false;
 
-    freeBoxes.forEach((boxWrapper) => {
+    for (const boxWrapper of freeBoxes) {
         const label = boxWrapper.querySelector('.box-label');
-        if (label.textContent === 'Espaço Livre' && !allocated) {
+        if (label.textContent === 'Espaço Livre') {
             label.textContent = processName;
-            allocated = true;
 
             const processTime = getProcessTime(processName);
             logProcessInfo(processName, boxWrapper);
             startProgressAnimation(boxWrapper, processName, processTime);
+            return true;
         }
-    });
+    }
 
-    return allocated;
+    return false;
 }
 
 function startProgressAnimation(boxWrapper, processName, processTime) {
@@ -69,7 +78,7 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
     progressBar.style.height = '0%';
 
     let startTime = Date.now();
-    const visualTime = Math.min(processTime, 10000);
+    const visualTime = Math.min(processTime, 1000);
 
     function updateProgress() {
         const elapsedVisual = Date.now() - startTime;
@@ -77,61 +86,121 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
         progressBar.style.height = `${percentage}%`;
 
         if (percentage < 100) {
-            requestAnimationFrame(updateProgress);
+            const animation = requestAnimationFrame(updateProgress);
+            activeAnimations.push(animation);
         } else {
-            setTimeout(() => {
+            const timeout = setTimeout(() => {
                 boxWrapper.querySelector('.box-label').textContent = 'Espaço Livre';
                 progressBar.style.height = '0%';
-                moveToFinalized(processName);
-                applyAllocationDelay(); // Atraso de 0,5 segundos após finalização
+                handleProcessCompletion(processName);
+                applyAllocationDelay();
             }, processTime - visualTime);
+            activeTimeouts.push(timeout);
         }
     }
 
-    requestAnimationFrame(updateProgress);
+    const animation = requestAnimationFrame(updateProgress);
+    activeAnimations.push(animation);
+}
+
+function handleProcessCompletion(processName) {
+    // Verifica se o processo precisa ser executado novamente ou movido para finalizados
+    if (canExecuteProcess(processName)) {
+        scheduleNextExecution(processName);
+    } 
+    moveToFinalized(processName); // Garante que o processo será movido para finalizados, mesmo que precise ser reexecutado
 }
 
 function applyAllocationDelay() {
-    allocationInProgress = true; // Ativa a flag para impedir novas alocações
-    setTimeout(() => {
-        allocationInProgress = false; // Libera após 0,5s
-    }, 500); // Atraso de 0,5s antes de permitir outra alocação
+    allocationInProgress = true;
+    const timeout = setTimeout(() => {
+        allocationInProgress = false;
+    }, 500);
+    activeTimeouts.push(timeout);
 }
 
-function moveToFinalized(processName) {
+function moveToFinalized(processName, emoji = '✅') {
     const finalizedList = document.querySelector('.process-column:nth-child(2) .process-list');
-    const listItem = document.createElement('li');
-    listItem.textContent = processName;
-    finalizedList.appendChild(listItem);
 
-    if (canExecuteProcess(processName)) {
-        scheduleNextExecution(processName);
-    }
+    const listItem = document.createElement('li');
+    const contentWrapper = document.createElement('div');
+    contentWrapper.classList.add('finalized-content');
+
+    const processText = document.createElement('span');
+    processText.textContent = processName;
+
+    const statusBox = document.createElement('span');
+    statusBox.classList.add('status-box');
+    statusBox.textContent = emoji;
+
+    contentWrapper.appendChild(processText);
+    contentWrapper.appendChild(statusBox);
+    listItem.appendChild(contentWrapper);
+    finalizedList.appendChild(listItem);
+}
+
+function moveAllToFinalizedWithDelay() {
+    const boxWrappers = document.querySelectorAll('.box-wrapper');
+    const processList = document.querySelector('.process-column:first-child .process-list');
+    let delay = 0;
+
+    // Mover processos ativos nas boxes
+    boxWrappers.forEach((boxWrapper) => {
+        const label = boxWrapper.querySelector('.box-label');
+        if (label.textContent !== 'Espaço Livre') {
+            setTimeout(() => {
+                const processName = label.textContent;
+                logCancellation(processName, 'box');
+                moveToFinalized(processName, '⛔');
+                label.textContent = 'Espaço Livre';
+            }, delay);
+            delay += 300;
+        }
+    });
+
+    // Mover processos restantes na lista de "Próximos Processos"
+    processList.querySelectorAll('li').forEach((process) => {
+        setTimeout(() => {
+            const processName = process.textContent;
+            logCancellation(processName, 'lista');
+            moveToFinalized(processName, '⛔');
+            process.remove();
+        }, delay);
+        delay += 300;
+    });
+}
+
+function logCancellationDetails() {
+    const processList = document.querySelector('.process-column:first-child .process-list');
+    console.log(`Processos restantes na lista de "Próximos Processos": ${processList.children.length}`);
+}
+
+function logCancellation(processName, location) {
+    const remainingExecutions = getRepetitions(processName) - (processCounts[processName] || 0);
+    console.log(
+        `Processo cancelado: ${processName}, Local: ${location}, Motivo: Parada da simulação, Execuções restantes: ${remainingExecutions}`
+    );
+}
+
+function clearAllBoxes() {
+    const progressBars = document.querySelectorAll('.progress');
+    progressBars.forEach((progressBar) => {
+        progressBar.style.height = '0%';
+    });
 }
 
 function scheduleNextExecution(processName) {
-    setTimeout(() => {
+    const timeout = setTimeout(() => {
         const processList = document.querySelector('.process-column:first-child .process-list');
         const listItem = document.createElement('li');
         listItem.textContent = processName;
         processList.appendChild(listItem);
-    }, 1000); // Adiciona o processo novamente após 1s se ainda puder ser executado
+    }, 1000);
+    activeTimeouts.push(timeout);
 }
 
 function getProcessTime(processName) {
-    switch (processName) {
-        case 'Processo 1': return 197000;
-        case 'Processo 2': return 4000;
-        case 'Processo 3': return 6000;
-        case 'Processo 4': return 8000;
-        case 'Processo 5': return 2000;
-        case 'Processo 6': return 5000;
-        case 'Processo 7': return 7000;
-        case 'Processo 8': return 3000;
-        case 'Processo 9': return 9000;
-        case 'Processo 10': return 1000;
-        default: return Math.floor(Math.random() * 9000) + 1000;
-    }
+    return 1000; // Teste com 1 segundo para todos os processos
 }
 
 function canExecuteProcess(processName) {
@@ -165,4 +234,12 @@ function logProcessInfo(processName, boxWrapper) {
     const boxIndex = boxWrapper.getAttribute('data-index');
     const executionCount = processCounts[processName];
     console.log(`Processo: ${processName}, Box: ${boxIndex}, Execução: ${executionCount}`);
+}
+
+function pauseAllProcesses() {
+    activeAnimations.forEach(animation => cancelAnimationFrame(animation));
+    activeAnimations = [];
+
+    activeTimeouts.forEach(timeout => clearTimeout(timeout));
+    activeTimeouts = [];
 }

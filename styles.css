@@ -81,17 +81,13 @@ header h1 {
 /* Container do botão */
 .button-container {
     width: 100%;
-    /* Ocupa toda a largura */
     text-align: center;
-    /* Centraliza o botão */
     margin-top: 30px;
-    /* Espaçamento acima */
 }
 
 /* Botão Centralizado */
 .simulation-btn {
     padding: 16px 32px;
-    /* Botão maior */
     background-color: #4b3dbc;
     color: white;
     border: none;
@@ -104,7 +100,17 @@ header h1 {
 .simulation-btn:hover {
     background-color: #392b97;
     transform: scale(1.1);
-    /* Ligeiro zoom no hover */
+}
+
+/* Estilo do botão quando a simulação está em execução */
+.stop-btn {
+    background-color: #e74c3c; /* Vermelho */
+    color: white;
+    transition: background-color 0.3s ease;
+}
+
+.stop-btn:hover {
+    background-color: #c0392b; /* Vermelho mais escuro no hover */
 }
 
 /* Listas de Processos */
@@ -178,13 +184,25 @@ header h1 {
     opacity: 0;
 }
 
-.box {
-  width: 180px;
-  height: 180px;
-  background-color: white; /* Branco por padrão */
-  border-radius: 20px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
+/* Estilo para o conteúdo alinhado na lista de processos finalizados */
+.finalized-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
+/* Estilo para o quadrado com o emoji ✅ */
+.status-box {
+    width: 30px;
+    height: 30px;
+    background-color: #4caf50;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-left: 10px;
+}
