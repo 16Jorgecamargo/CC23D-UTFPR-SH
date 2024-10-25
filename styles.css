@@ -249,9 +249,36 @@ header h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Efeito de transição suave para o ícone do documento */
 .document-icon span {
-    font-size: 20px; /* Ajustando o tamanho do emoji para se ajustar ao novo tamanho da box */
+    font-size: 24px;
     color: white;
+    transition: transform 0.3s ease, color 0.3s ease; /* Transição suave de transformação e cor */
+}
+
+/* Efeito de hover igual ao botão "Iniciar Simulação" */
+.document-icon.hovering span {
+    transform: scale(1.1); /* Aumenta levemente o ícone */
+    color: #f44336; /* Muda a cor para vermelha durante o hover */
+}
+
+/* Botão de recarregar */
+.reload-btn {
+    padding: 16px;
+    background-color: #4b3dbc;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    margin-left: 20px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    display: none; /* Inicialmente escondido */
+}
+
+.reload-btn:hover {
+    background-color: #392b97;
+    transform: scale(1.1);
 }
 
 

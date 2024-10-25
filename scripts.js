@@ -1,12 +1,17 @@
 const processRepetitions = {};
 const processCounts = {};
+const manuallyCancelledProcesses = new Set();
 let allocationInProgress = false;
 let simulationRunning = false;
 let simulationInterval;
 let activeAnimations = [];
 let activeTimeouts = [];
+let totalProcessTime = 0;
+let allOtherProcessesCompleted = false; 
+
 
 const simulationButton = document.querySelector('.simulation-btn');
+const reloadButton = document.querySelector('.reload-btn');
 simulationButton.addEventListener('click', () => {
     console.log('Simulation button clicked');
     toggleSimulation();
@@ -14,22 +19,22 @@ simulationButton.addEventListener('click', () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Document loaded');
-    // Adiciona o ícone de documento ao lado da label de cada box
     addDocumentIconsToBoxes();
+    addHoverEffectToIcons();
 });
 
 function toggleSimulation() {
     console.log('Toggling simulation');
     simulationRunning = !simulationRunning;
-    simulationButton.textContent = simulationRunning ? 'Parar Simulação' : 'Iniciar Simulação';
 
     if (simulationRunning) {
         console.log('Simulation started');
+        simulationButton.textContent = 'Parar Simulação';
         simulationButton.classList.add('stop-btn');
+        reloadButton.style.display = 'inline-block'; 
         tryAllocateProcess();
     } else {
         console.log('Simulation stopped');
-        simulationButton.classList.remove('stop-btn');
         pauseAllProcesses();
         clearAllBoxes();
         moveAllToFinalizedWithDelay();
@@ -38,19 +43,22 @@ function toggleSimulation() {
     }
 }
 
+reloadButton.addEventListener('click', () => {
+    console.log('Reload button clicked');
+    window.location.reload(); 
+});
+
 function addDocumentIconsToBoxes() {
     console.log('Adding document icons to boxes');
     const boxWrappers = document.querySelectorAll('.box-wrapper');
     boxWrappers.forEach((boxWrapper) => {
         let documentIconWrapper = boxWrapper.querySelector('.document-icon');
-        
-        // Se já existir o elemento, apenas atualiza o ícone
         if (!documentIconWrapper) {
             documentIconWrapper = document.createElement('div');
             documentIconWrapper.classList.add('document-icon');
-            boxWrapper.appendChild(documentIconWrapper);
+            boxWrapper.querySelector('.box-label-container').appendChild(documentIconWrapper);
         }
-        
+
         updateDocumentIcon(boxWrapper);
     });
 }
@@ -67,7 +75,6 @@ function updateDocumentIcon(boxWrapper) {
         documentIcon.textContent = '⌛';
     }
 
-    // Se o span ainda não está no documentIconWrapper, anexa ele
     if (!documentIconWrapper.contains(documentIcon)) {
         documentIconWrapper.appendChild(documentIcon);
     }
@@ -114,7 +121,7 @@ function allocateProcess(processName) {
         const label = boxWrapper.querySelector('.box-label');
         if (label.textContent === 'Espaço Livre') {
             label.textContent = processName;
-            updateDocumentIcon(boxWrapper); // Atualiza o ícone para ⌛
+            updateDocumentIcon(boxWrapper); 
 
             const processTime = getProcessTime(processName);
             logProcessInfo(processName, boxWrapper);
@@ -147,10 +154,14 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
         } else {
             const timeout = setTimeout(() => {
                 console.log(`Process ${processName} completed`);
-                boxWrapper.querySelector('.box-label').textContent = 'Espaço Livre';
-                progressBar.style.height = '0%';
-                updateDocumentIcon(boxWrapper); // Atualiza o ícone para 📃
-                handleProcessCompletion(processName);
+
+                if (processName !== 'Processo 1' || allOtherProcessesCompleted) {
+                    boxWrapper.querySelector('.box-label').textContent = 'Espaço Livre';
+                    progressBar.style.height = '0%';
+                    updateDocumentIcon(boxWrapper); 
+                    handleProcessCompletion(processName);
+                }
+
                 applyAllocationDelay();
             }, processTime - visualTime);
             activeTimeouts.push(timeout);
@@ -161,12 +172,45 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
     activeAnimations.push(animation);
 }
 
+
 function handleProcessCompletion(processName) {
     console.log(`Handling process completion for: ${processName}`);
-    if (canExecuteProcess(processName)) {
-        scheduleNextExecution(processName);
+    
+    if (manuallyCancelledProcesses.has(processName)) {
+        console.log(`Process ${processName} was manually cancelled, skipping completion.`);
+        return;
     }
-    moveToFinalized(processName);
+
+    if (processName !== 'Processo 1') {
+        moveToFinalized(processName, manuallyCancelledProcesses.has(processName) ? '⛔' : '✅');
+        if (canExecuteProcess(processName)) {
+            scheduleNextExecution(processName);
+        }
+    }
+
+    const activeBoxes = Array.from(document.querySelectorAll('.box-wrapper .box-label'))
+        .filter(label => label.textContent !== 'Espaço Livre' && label.textContent !== 'Processo 1');
+
+    const remainingProcesses = document.querySelector('.process-column:first-child .process-list').children.length + activeBoxes.length;
+    
+    if (remainingProcesses === 0 && processName !== 'Processo 1') {
+        allOtherProcessesCompleted = true;
+        finalizeProcesso1(); 
+    }
+}
+
+
+
+function finalizeProcesso1() {
+    console.log('Finalizing Processo 1');
+    const processBox = document.querySelector('.box-wrapper .box-label');
+    if (processBox && processBox.textContent === 'Processo 1') {
+        const progressBar = processBox.closest('.box-wrapper').querySelector('.progress');
+        processBox.textContent = 'Espaço Livre';
+        progressBar.style.height = '0%';
+        updateDocumentIcon(processBox.closest('.box-wrapper'));
+        moveToFinalized('Processo 1', '✅');
+    }
 }
 
 function applyAllocationDelay() {
@@ -194,19 +238,16 @@ function moveToFinalized(processName, emoji = '✅') {
     statusBox.classList.add('status-box');
     statusBox.textContent = emoji;
 
-    // Altera a cor do quadrado dependendo do emoji
     if (emoji === '⛔') {
-        statusBox.style.backgroundColor = '#f44336'; // Cor vermelha
+        statusBox.style.backgroundColor = '#f44336'; 
     } else {
-        statusBox.style.backgroundColor = '#4caf50'; // Cor verde
+        statusBox.style.backgroundColor = '#4caf50'; 
     }
 
     contentWrapper.appendChild(processText);
     contentWrapper.appendChild(statusBox);
     listItem.appendChild(contentWrapper);
     finalizedList.appendChild(listItem);
-
-    // Adiciona a rolagem automática para o fim da lista
     finalizedList.scrollTop = finalizedList.scrollHeight;
 }
 
@@ -216,7 +257,6 @@ function moveAllToFinalizedWithDelay() {
     const processList = document.querySelector('.process-column:first-child .process-list');
     let delay = 0;
 
-    // Mover processos ativos nas boxes
     boxWrappers.forEach((boxWrapper) => {
         const label = boxWrapper.querySelector('.box-label');
         if (label.textContent !== 'Espaço Livre') {
@@ -225,13 +265,12 @@ function moveAllToFinalizedWithDelay() {
                 logCancellation(processName, 'box');
                 moveToFinalized(processName, '⛔');
                 label.textContent = 'Espaço Livre';
-                updateDocumentIcon(boxWrapper); // Atualiza o ícone para 📃
+                updateDocumentIcon(boxWrapper);
             }, delay);
             delay += 300;
         }
     });
 
-    // Mover processos restantes na lista de "Próximos Processos"
     processList.querySelectorAll('li').forEach((process) => {
         setTimeout(() => {
             const processName = process.textContent;
@@ -277,23 +316,36 @@ function scheduleNextExecution(processName) {
 
 function getProcessTime(processName) {
     console.log(`Getting process time for: ${processName}`);
+    let processTime;
     switch (processName) {
-        case 'Processo 1': return 60000; // 1 minuto
-        case 'Processo 2': return 4000; // 4 segundos
-        case 'Processo 3': return 6000; // 6 segundos
-        case 'Processo 4': return 8000; // 8 segundos
-        case 'Processo 5': return 2000; // 2 segundos
-        case 'Processo 6': return 5000; // 5 segundos
-        case 'Processo 7': return 7000; // 7 segundos
-        case 'Processo 8': return 3000; // 3 segundos
-        case 'Processo 9': return 9000; // 9 segundos
-        case 'Processo 10': return 1000; // 1 segundo
-        default: return Math.floor(Math.random() * 9000) + 1000; // Entre 1 e 10 segundos
+        case 'Processo 1':
+            processTime = 5000 + totalProcessTime; // 5 segundos + tempo acumulado
+            break;
+        case 'Processo 2': processTime = 4000; break; // 4 segundos
+        case 'Processo 3': processTime = 6000; break; // 6 segundos
+        case 'Processo 4': processTime = 8000; break; // 8 segundos
+        case 'Processo 5': processTime = 3000; break; // 2 segundos
+        case 'Processo 6': processTime = 5000; break; // 5 segundos
+        case 'Processo 7': processTime = 7000; break; // 7 segundos
+        case 'Processo 8': processTime = 3000; break; // 3 segundos
+        case 'Processo 9': processTime = 9000; break; // 9 segundos
+        case 'Processo 10': processTime = 4000; break; // 1 segundo
+        default: processTime = Math.floor(Math.random() * 9000) + 1000; // Entre 1 e 10 segundos
     }
+    
+    if (processName !== 'Processo 1') {
+        totalProcessTime += processTime; 
+    }
+    
+    return processTime;
 }
 
 function canExecuteProcess(processName) {
     console.log(`Checking if process can execute: ${processName}`);
+    if (manuallyCancelledProcesses.has(processName)) {
+        console.log(`Process ${processName} was manually cancelled and will not execute again.`);
+        return false;
+    }
     if (!processCounts[processName]) {
         processCounts[processName] = 0;
     }
@@ -316,7 +368,7 @@ function getRepetitions(processName) {
         case 'Processo 6': return 4;
         case 'Processo 7': return 3;
         case 'Processo 8': return 3;
-        case 'Processo 9': return 5;
+        case 'Processo 9': return 4;
         case 'Processo 10': return 4;
         default: return 0;
     }
@@ -336,3 +388,52 @@ function pauseAllProcesses() {
     activeTimeouts.forEach(timeout => clearTimeout(timeout));
     activeTimeouts = [];
 }
+
+function addHoverEffectToIcons() {
+    console.log('Adding hover effect to icons');
+    const documentIcons = document.querySelectorAll('.document-icon span');
+
+    documentIcons.forEach((icon) => {
+        icon.addEventListener('mouseover', () => {
+            if (icon.textContent === '⌛') {
+                icon.textContent = '❌';
+                icon.parentElement.classList.add('hovering');
+            }
+        });
+
+        icon.addEventListener('mouseout', () => {
+            if (icon.textContent === '❌') {
+                icon.textContent = '⌛';
+                icon.parentElement.classList.remove('hovering');
+            }
+        });
+
+        icon.addEventListener('click', () => {
+            if (icon.textContent === '❌') {
+                const boxWrapper = icon.closest('.box-wrapper');
+                const label = boxWrapper.querySelector('.box-label');
+                const progressBar = boxWrapper.querySelector('.progress');
+                const processName = label.textContent;
+        
+                if (processName !== 'Espaço Livre') {
+                    console.log(`Removing process ${processName} by user action`);
+                    moveToFinalized(processName, '⛔');
+                    label.textContent = 'Espaço Livre';
+        
+                    progressBar.remove();
+                    const newProgressBar = document.createElement('div');
+                    newProgressBar.classList.add('progress');
+                    newProgressBar.style.height = '0%';
+                    boxWrapper.querySelector('.box').appendChild(newProgressBar);
+        
+                    updateDocumentIcon(boxWrapper);
+                    
+                    manuallyCancelledProcesses.add(processName);
+                }
+            }
+        });
+    });
+}
+
+
+
