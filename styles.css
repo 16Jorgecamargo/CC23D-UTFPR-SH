@@ -47,8 +47,8 @@ header h1 {
 
 /* Estilo das boxes */
 .box {
-    width: 180px;
-    height: 180px;
+    width: 210px;
+    height: 210px;
     background-color: white;
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -119,6 +119,7 @@ header h1 {
     justify-content: center;
     gap: 40px;
     margin-top: 40px;
+    scroll-behavior: smooth; /* Adiciona rolagem suave */
 }
 
 .process-column {
@@ -206,3 +207,52 @@ header h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     margin-left: 10px;
 }
+
+/* Atualize o estilo do box-wrapper */
+.box-wrapper {
+    display: flex;
+    flex-direction: column; /* Mantenha a box e o rótulo alinhados verticalmente */
+    align-items: center;
+    gap: 10px; /* Distância entre a box branca e o rótulo roxo */
+    margin-bottom: 10px; /* Distância entre o conjunto e as outras partes do layout */
+}
+
+/* Atualize o estilo da box-label e document-icon para alinhar lado a lado */
+.box-label-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Distância entre o rótulo e o quadrado roxo com o emoji */
+}
+
+/* Atualize o estilo da box-label */
+.box-label {
+    padding: 8px;
+    background-color: #4b3dbc;
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 8px;
+    width: 160px; /* Ajuste para alinhar a largura da label com a box */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Atualize o estilo do quadrado roxo ao redor do emoji */
+.document-icon {
+    width: 32px; /* Diminuindo a largura */
+    height: 32px; /* Diminuindo a altura para ser semelhante à box-label */
+    background-color: #4b3dbc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.document-icon span {
+    font-size: 20px; /* Ajustando o tamanho do emoji para se ajustar ao novo tamanho da box */
+    color: white;
+}
+
+
+
