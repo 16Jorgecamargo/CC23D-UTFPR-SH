@@ -1,26 +1,77 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Memory Overlays Simulation</title>
+    <title>Simulação - Overley de Memória Virtual</title>
     <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
+    <header>
+        <h1>Simulação - Overley de Memória Virtual</h1>
+    </header>
 
-<div class="overlay-container">
-    <h1>Virtual Memory Overlay Simulation</h1>
-    <div class="process-list">
-        <div class="process" id="process1">Processo 1</div>
-        <div class="process" id="process2">Process 2</div>
-        <div class="process" id="process3">Process 3</div>
-        <div class="process" id="process4">Process 4</div>
-    </div>
-    <div class="controls">
-        <button class="btn" onclick="simulateOverlay()">Start Simulation</button>
-    </div>
-</div>
+    <main>
+        <section class="box-container">
+            <div class="box-wrapper" data-index="1">
+              <div class="box">
+                <div class="progress"></div>
+              </div>
+              <div class="box-label">Espaço Livre</div>
+            </div>
+            <div class="box-wrapper" data-index="2">
+              <div class="box">
+                <div class="progress"></div>
+              </div>
+              <div class="box-label">Espaço Livre</div>
+            </div>
+            <div class="box-wrapper" data-index="3">
+              <div class="box">
+                <div class="progress"></div>
+              </div>
+              <div class="box-label">Espaço Livre</div>
+            </div>
+            <div class="box-wrapper" data-index="4">
+              <div class="box">
+                <div class="progress"></div>
+              </div>
+              <div class="box-label">Espaço Livre</div>
+            </div>
+        </section>          
+    
+        <!-- Container para centralizar o botão -->
+        <div class="button-container">
+            <button class="simulation-btn">Iniciar Simulação</button>
+        </div>
+    
+        <section class="process-lists">
+            <div class="process-column">
+                <h2>Próximos Processos</h2>
+                <ul class="process-list">
+                    <li>Processo 1</li>
+                    <li>Processo 2</li>
+                    <li>Processo 3</li>
+                    <li>Processo 4</li>
+                    <li>Processo 5</li>
+                    <li>Processo 6</li>
+                    <li>Processo 7</li>
+                    <li>Processo 8</li>
+                    <li>Processo 9</li>
+                    <li>Processo 10</li>
+                </ul>
+            </div>
+    
+            <div class="process-column">
+                <h2>Processos Finalizados</h2>
+                <ul class="process-list"></ul>
+            </div>
+        </section>
+    </main>
+    
 
-<script src="script.js"></script>
+    <script src="scripts.js" defer></script>
 </body>
+
 </html>
