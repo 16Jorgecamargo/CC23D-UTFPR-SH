@@ -78,7 +78,7 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
     progressBar.style.height = '0%';
 
     let startTime = Date.now();
-    const visualTime = Math.min(processTime, 1000);
+    const visualTime = Math.min(processTime, 10000);
 
     function updateProgress() {
         const elapsedVisual = Date.now() - startTime;
@@ -104,11 +104,10 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
 }
 
 function handleProcessCompletion(processName) {
-    // Verifica se o processo precisa ser executado novamente ou movido para finalizados
     if (canExecuteProcess(processName)) {
         scheduleNextExecution(processName);
-    } 
-    moveToFinalized(processName); // Garante que o processo será movido para finalizados, mesmo que precise ser reexecutado
+    }
+    moveToFinalized(processName);
 }
 
 function applyAllocationDelay() {
@@ -132,6 +131,13 @@ function moveToFinalized(processName, emoji = '✅') {
     const statusBox = document.createElement('span');
     statusBox.classList.add('status-box');
     statusBox.textContent = emoji;
+
+    // Altera a cor do quadrado dependendo do emoji
+    if (emoji === '⛔') {
+        statusBox.style.backgroundColor = '#f44336'; // Cor vermelha
+    } else {
+        statusBox.style.backgroundColor = '#4caf50'; // Cor verde
+    }
 
     contentWrapper.appendChild(processText);
     contentWrapper.appendChild(statusBox);
@@ -200,7 +206,19 @@ function scheduleNextExecution(processName) {
 }
 
 function getProcessTime(processName) {
-    return 1000; // Teste com 1 segundo para todos os processos
+    switch (processName) {
+        case 'Processo 1': return 60000; // 1 minuto
+        case 'Processo 2': return 4000; // 4 segundos
+        case 'Processo 3': return 6000; // 6 segundos
+        case 'Processo 4': return 8000; // 8 segundos
+        case 'Processo 5': return 2000; // 2 segundos
+        case 'Processo 6': return 5000; // 5 segundos
+        case 'Processo 7': return 7000; // 7 segundos
+        case 'Processo 8': return 3000; // 3 segundos
+        case 'Processo 9': return 9000; // 9 segundos
+        case 'Processo 10': return 1000; // 1 segundo
+        default: return Math.floor(Math.random() * 9000) + 1000; // Entre 1 e 10 segundos
+    }
 }
 
 function canExecuteProcess(processName) {
