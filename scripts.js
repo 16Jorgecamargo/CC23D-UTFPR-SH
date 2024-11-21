@@ -155,7 +155,7 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
             const timeout = setTimeout(() => {
                 console.log(`Process ${processName} completed`);
 
-                if (processName !== 'Processo 1' || allOtherProcessesCompleted) {
+                if (processName !== 'Processo Principal' || allOtherProcessesCompleted) {
                     boxWrapper.querySelector('.box-label').textContent = 'Espaço Livre';
                     progressBar.style.height = '0%';
                     updateDocumentIcon(boxWrapper); 
@@ -181,7 +181,7 @@ function handleProcessCompletion(processName) {
         return;
     }
 
-    if (processName !== 'Processo 1') {
+    if (processName !== 'Processo Principal') {
         moveToFinalized(processName, manuallyCancelledProcesses.has(processName) ? '⛔' : '✅');
         if (canExecuteProcess(processName)) {
             scheduleNextExecution(processName);
@@ -189,11 +189,11 @@ function handleProcessCompletion(processName) {
     }
 
     const activeBoxes = Array.from(document.querySelectorAll('.box-wrapper .box-label'))
-        .filter(label => label.textContent !== 'Espaço Livre' && label.textContent !== 'Processo 1');
+        .filter(label => label.textContent !== 'Espaço Livre' && label.textContent !== 'Processo Principal');
 
     const remainingProcesses = document.querySelector('.process-column:first-child .process-list').children.length + activeBoxes.length;
     
-    if (remainingProcesses === 0 && processName !== 'Processo 1') {
+    if (remainingProcesses === 0 && processName !== 'Processo Principal') {
         allOtherProcessesCompleted = true;
         finalizeProcesso1(); 
     }
@@ -202,14 +202,14 @@ function handleProcessCompletion(processName) {
 
 
 function finalizeProcesso1() {
-    console.log('Finalizing Processo 1');
+    console.log('Finalizing Processo Principal');
     const processBox = document.querySelector('.box-wrapper .box-label');
-    if (processBox && processBox.textContent === 'Processo 1') {
+    if (processBox && processBox.textContent === 'Processo Principal') {
         const progressBar = processBox.closest('.box-wrapper').querySelector('.progress');
         processBox.textContent = 'Espaço Livre';
         progressBar.style.height = '0%';
         updateDocumentIcon(processBox.closest('.box-wrapper'));
-        moveToFinalized('Processo 1', '✅');
+        moveToFinalized('Processo Principal', '✅');
     }
 }
 
@@ -318,22 +318,23 @@ function getProcessTime(processName) {
     console.log(`Getting process time for: ${processName}`);
     let processTime;
     switch (processName) {
-        case 'Processo 1':
+        case 'Processo Principal':
             processTime = 5000 + totalProcessTime; // 5 segundos + tempo acumulado
             break;
-        case 'Processo 2': processTime = 4000; break; // 4 segundos
-        case 'Processo 3': processTime = 6000; break; // 6 segundos
-        case 'Processo 4': processTime = 8000; break; // 8 segundos
-        case 'Processo 5': processTime = 3000; break; // 2 segundos
-        case 'Processo 6': processTime = 5000; break; // 5 segundos
-        case 'Processo 7': processTime = 7000; break; // 7 segundos
-        case 'Processo 8': processTime = 3000; break; // 3 segundos
-        case 'Processo 9': processTime = 9000; break; // 9 segundos
-        case 'Processo 10': processTime = 4000; break; // 1 segundo
+        case 'Sub Processo 1': processTime = 5000; break; // 5 segundos
+        case 'Sub Processo 2': processTime = 4000; break; // 4 segundos
+        case 'Sub Processo 3': processTime = 6000; break; // 6 segundos
+        case 'Sub Processo 4': processTime = 8000; break; // 8 segundos
+        case 'Sub Processo 5': processTime = 3000; break; // 2 segundos
+        case 'Sub Processo 6': processTime = 5000; break; // 5 segundos
+        case 'Sub Processo 7': processTime = 7000; break; // 7 segundos
+        case 'Sub Processo 8': processTime = 3000; break; // 3 segundos
+        case 'Sub Processo 9': processTime = 9000; break; // 9 segundos
+        case 'Sub Processo 10': processTime = 4000; break; // 1 segundo
         default: processTime = Math.floor(Math.random() * 9000) + 1000; // Entre 1 e 10 segundos
     }
     
-    if (processName !== 'Processo 1') {
+    if (processName !== 'Processo Principal') {
         totalProcessTime += processTime; 
     }
     
@@ -360,16 +361,18 @@ function incrementProcessCount(processName) {
 function getRepetitions(processName) {
     console.log(`Getting repetitions for process: ${processName}`);
     switch (processName) {
-        case 'Processo 1': return 1;
-        case 'Processo 2': return 5;
-        case 'Processo 3': return 3;
-        case 'Processo 4': return 4;
-        case 'Processo 5': return 5;
-        case 'Processo 6': return 4;
-        case 'Processo 7': return 3;
-        case 'Processo 8': return 3;
-        case 'Processo 9': return 4;
-        case 'Processo 10': return 4;
+        case 'Processo Principal': return 1;
+        case 'Sub Processo 1': return 3;
+        case 'Sub Processo 2': return 5;
+        case 'Sub Processo 3': return 3;
+        case 'Sub Processo 4': return 4;
+        case 'Sub Processo 5': return 5;
+        case 'Sub Processo 6': return 4;
+        case 'Sub Processo 7': return 3;
+        case 'Sub Processo 8': return 3;
+        case 'Sub Processo 9': return 4;
+        case 'Sub Processo 10': return 4;
+    
         default: return 0;
     }
 }
