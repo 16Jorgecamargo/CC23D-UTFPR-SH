@@ -321,17 +321,17 @@ function getProcessTime(processName) {
         case 'Processo Principal':
             processTime = 5000 + totalProcessTime; // 5 segundos + tempo acumulado
             break;
-        case 'Sub Processo 1': processTime = 5000; break; // 5 segundos
-        case 'Sub Processo 2': processTime = 4000; break; // 4 segundos
-        case 'Sub Processo 3': processTime = 6000; break; // 6 segundos
-        case 'Sub Processo 4': processTime = 8000; break; // 8 segundos
-        case 'Sub Processo 5': processTime = 3000; break; // 2 segundos
-        case 'Sub Processo 6': processTime = 5000; break; // 5 segundos
-        case 'Sub Processo 7': processTime = 7000; break; // 7 segundos
-        case 'Sub Processo 8': processTime = 3000; break; // 3 segundos
-        case 'Sub Processo 9': processTime = 9000; break; // 9 segundos
-        case 'Sub Processo 10': processTime = 4000; break; // 1 segundo
-        default: processTime = Math.floor(Math.random() * 9000) + 1000; // Entre 1 e 10 segundos
+        case 'Sub Processo 1': processTime = 5000; break; 
+        case 'Sub Processo 2': processTime = 4000; break; 
+        case 'Sub Processo 3': processTime = 6000; break; 
+        case 'Sub Processo 4': processTime = 8000; break; 
+        case 'Sub Processo 5': processTime = 3000; break; 
+        case 'Sub Processo 6': processTime = 5000; break;
+        case 'Sub Processo 7': processTime = 7000; break; 
+        case 'Sub Processo 8': processTime = 3000; break; 
+        case 'Sub Processo 9': processTime = 9000; break; 
+        case 'Sub Processo 10': processTime = 4000; break; 
+        default: processTime = Math.floor(Math.random() * 9000) + 1000; 
     }
     
     if (processName !== 'Processo Principal') {

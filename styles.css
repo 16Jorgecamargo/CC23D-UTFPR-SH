@@ -119,7 +119,7 @@ header h1 {
     justify-content: center;
     gap: 40px;
     margin-top: 40px;
-    scroll-behavior: smooth; /* Adiciona rolagem suave */
+    scroll-behavior: smooth; 
 }
 
 .process-column {
@@ -211,10 +211,10 @@ header h1 {
 /* Atualize o estilo do box-wrapper */
 .box-wrapper {
     display: flex;
-    flex-direction: column; /* Mantenha a box e o rótulo alinhados verticalmente */
+    flex-direction: column; 
     align-items: center;
-    gap: 10px; /* Distância entre a box branca e o rótulo roxo */
-    margin-bottom: 10px; /* Distância entre o conjunto e as outras partes do layout */
+    gap: 10px; 
+    margin-bottom: 10px; 
 }
 
 /* Atualize o estilo da box-label e document-icon para alinhar lado a lado */
@@ -222,7 +222,7 @@ header h1 {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px; /* Distância entre o rótulo e o quadrado roxo com o emoji */
+    gap: 8px; 
 }
 
 /* Atualize o estilo da box-label */
@@ -233,15 +233,14 @@ header h1 {
     text-align: center;
     font-weight: bold;
     border-radius: 8px;
-    width: 160px; /* Ajuste para alinhar a largura da label com a box */
+    width: 160px; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 /* Atualize o estilo do quadrado roxo ao redor do emoji */
 .document-icon {
-    width: 32px; /* Diminuindo a largura */
-    height: 32px; /* Diminuindo a altura para ser semelhante à box-label */
-    background-color: #4b3dbc;
+    width: 32px; 
+    height: 32px; 
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -253,13 +252,13 @@ header h1 {
 .document-icon span {
     font-size: 24px;
     color: white;
-    transition: transform 0.3s ease, color 0.3s ease; /* Transição suave de transformação e cor */
+    transition: transform 0.3s ease, color 0.3s ease; 
 }
 
 /* Efeito de hover igual ao botão "Iniciar Simulação" */
 .document-icon.hovering span {
-    transform: scale(1.1); /* Aumenta levemente o ícone */
-    color: #f44336; /* Muda a cor para vermelha durante o hover */
+    transform: scale(1.1); 
+    color: #f44336; 
 }
 
 /* Botão de recarregar */
@@ -273,7 +272,7 @@ header h1 {
     cursor: pointer;
     margin-left: 20px;
     transition: transform 0.3s ease, background-color 0.3s ease;
-    display: none; /* Inicialmente escondido */
+    display: none; 
 }
 
 .reload-btn:hover {
