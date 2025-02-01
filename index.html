@@ -2,10 +2,12 @@
 <html lang="pt-BR">
 
 <head>
+    <!-- Meta tags para configuração da página -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulação - Overley de Memória Virtual</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Script de alerta inicial -->
     <script>
         window.onload = function () {
             //alert("Disciplina: Arquitetura e Organização de Computadores\nProjeto Final: Overlay de Memória Virtual\n\nJorge Camargo - 2024");
@@ -14,12 +16,16 @@
 </head>
 
 <body>
+    <!-- Cabeçalho da página -->
     <header>
         <h1>Simulação - Overley de Memória Virtual</h1>
     </header>
 
+    <!-- Conteúdo principal -->
     <main>
+        <!-- Seção de boxes de processo -->
         <section class="box-container">
+            <!-- Boxes individuais representando espaços de memória -->
             <div class="box-wrapper" data-index="1">
                 <div class="box">
                     <div class="progress"></div>
@@ -58,12 +64,13 @@
             </div>
         </section>
 
-        <!-- Container para centralizar o botão -->
+        <!-- Container dos botões de controle -->
         <div class="button-container">
             <button class="simulation-btn">Iniciar Simulação</button>
             <button class="reload-btn" style="display: none;">🔄️</button>
         </div>
 
+        <!-- Seção das listas de processo -->
         <section class="process-lists">
             <div class="process-column">
                 <h2>Próximos Processos</h2>
@@ -89,6 +96,7 @@
         </section>
     </main>
 
+    <!-- Scripts da aplicação -->
     <script src="scripts.js" defer></script>
 </body>
 

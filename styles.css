@@ -1,4 +1,29 @@
-/* Reset de CSS */
+/**
+ * Estilos para o Simulador de Overlay de Memória Virtual
+ * @version 1.0.0
+ * @author Jorge Camargo
+ * @copyright 2024
+ *
+ * Organização dos estilos:
+ * 1. Reset e configurações globais
+ * 2. Layout e estrutura principal
+ * 3. Componentes de interface
+ * 4. Animações e transições
+ * 5. Estados e modificadores
+ * 6. Responsividade
+ *
+ * Paleta de cores:
+ * - Principal: #4b3dbc (roxo)
+ * - Secundária: #9bf6ff (azul claro)
+ * - Sucesso: #4caf50 (verde)
+ * - Erro: #e74c3c (vermelho)
+ * - Fundo: #e9eef5 (cinza claro)
+ */
+
+/**
+ * Reset CSS Global
+ * Remove margens e paddings padrão e define fonte base
+ */
 * {
     margin: 0;
     padding: 0;
@@ -6,6 +31,10 @@
     font-family: 'Arial', sans-serif;
 }
 
+/**
+ * Estilos do corpo da página
+ * Define layout flexível e cores de fundo
+ */
 body {
     background-color: #e9eef5;
     display: flex;
@@ -15,7 +44,10 @@ body {
     padding: 20px;
 }
 
-/* Header */
+/**
+ * Estilos do cabeçalho
+ * Define aparência e posicionamento do título
+ */
 header {
     background-color: #4b3dbc;
     width: 100%;
@@ -29,7 +61,10 @@ header h1 {
     font-weight: bold;
 }
 
-/* Container principal das boxes */
+/**
+ * Container principal das boxes de processo
+ * Organiza as boxes em layout flexível
+ */
 .box-container {
     display: flex;
     justify-content: center;

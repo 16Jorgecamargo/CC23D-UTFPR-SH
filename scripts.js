@@ -1,15 +1,45 @@
+/**
+ * @fileoverview Simulador de Overlay de Memória Virtual
+ * @version 1.0.0
+ * @author Jorge Camargo
+ * @copyright 2024
+ * @description 
+ * Este arquivo contém a implementação da lógica de simulação do sistema de overlay.
+ * Gerencia a alocação, execução e remoção de processos em espaços de memória virtual,
+ * controlando tempos de execução, repetições e estados dos processos.
+ *
+ * Funcionalidades principais:
+ * - Gerenciamento de processos e subprocessos
+ * - Controle de tempo de execução
+ * - Sistema de fila de processos
+ * - Animações de progresso
+ * - Cancelamento manual de processos
+ * - Logging de eventos
+ */
+
+/**
+ * Variáveis globais para controle da simulação
+ */
+// Controla quantas vezes cada processo foi executado
 const processRepetitions = {};
+// Contador de execuções para cada processo
 const processCounts = {};
+// Conjunto de processos cancelados manualmente
 const manuallyCancelledProcesses = new Set();
+// Flags de controle
 let allocationInProgress = false;
 let simulationRunning = false;
 let simulationInterval;
+// Arrays para controle de animações e timeouts ativos
 let activeAnimations = [];
 let activeTimeouts = [];
+// Tempo total de processamento
 let totalProcessTime = 0;
-let allOtherProcessesCompleted = false; 
+let allOtherProcessesCompleted = false;
 
-
+/**
+ * Inicialização de elementos e eventos
+ */
 const simulationButton = document.querySelector('.simulation-btn');
 const reloadButton = document.querySelector('.reload-btn');
 simulationButton.addEventListener('click', () => {
@@ -23,6 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
     addHoverEffectToIcons();
 });
 
+/**
+ * Controla o início e parada da simulação
+ * @description Alterna entre iniciar e parar a simulação, atualizando a interface
+ */
 function toggleSimulation() {
     console.log('Toggling simulation');
     simulationRunning = !simulationRunning;
@@ -48,6 +82,10 @@ reloadButton.addEventListener('click', () => {
     window.location.reload(); 
 });
 
+/**
+ * Gerencia os ícones de documento nas boxes
+ * @description Adiciona e atualiza ícones em cada box da simulação
+ */
 function addDocumentIconsToBoxes() {
     console.log('Adding document icons to boxes');
     const boxWrappers = document.querySelectorAll('.box-wrapper');
@@ -63,6 +101,10 @@ function addDocumentIconsToBoxes() {
     });
 }
 
+/**
+ * Atualiza o ícone do documento baseado no estado da box
+ * @param {HTMLElement} boxWrapper - Elemento container da box
+ */
 function updateDocumentIcon(boxWrapper) {
     console.log('Updating document icon');
     const label = boxWrapper.querySelector('.box-label');
@@ -80,6 +122,10 @@ function updateDocumentIcon(boxWrapper) {
     }
 }
 
+/**
+ * Tenta alocar um novo processo
+ * @description Verifica e aloca processos da fila para boxes disponíveis
+ */
 function tryAllocateProcess() {
     console.log('Trying to allocate process');
     if (!simulationRunning) return;
@@ -113,6 +159,11 @@ function tryAllocateProcess() {
     activeTimeouts.push(simulationInterval);
 }
 
+/**
+ * Aloca um processo em uma box livre
+ * @param {string} processName - Nome do processo a ser alocado
+ * @returns {boolean} - Sucesso ou falha na alocação
+ */
 function allocateProcess(processName) {
     console.log(`Allocating process: ${processName}`);
     const freeBoxes = document.querySelectorAll('.box-wrapper');
@@ -134,6 +185,12 @@ function allocateProcess(processName) {
     return false;
 }
 
+/**
+ * Inicia a animação de progresso do processo
+ * @param {HTMLElement} boxWrapper - Elemento container da box
+ * @param {string} processName - Nome do processo
+ * @param {number} processTime - Tempo de execução do processo
+ */
 function startProgressAnimation(boxWrapper, processName, processTime) {
     console.log(`Starting progress animation for process: ${processName}`);
     const progressBar = boxWrapper.querySelector('.progress');
@@ -172,7 +229,10 @@ function startProgressAnimation(boxWrapper, processName, processTime) {
     activeAnimations.push(animation);
 }
 
-
+/**
+ * Lida com a conclusão de um processo
+ * @param {string} processName - Nome do processo concluído
+ */
 function handleProcessCompletion(processName) {
     console.log(`Handling process completion for: ${processName}`);
     
@@ -199,8 +259,9 @@ function handleProcessCompletion(processName) {
     }
 }
 
-
-
+/**
+ * Finaliza o processo principal
+ */
 function finalizeProcesso1() {
     console.log('Finalizing Processo Principal');
     const processBox = document.querySelector('.box-wrapper .box-label');
@@ -213,6 +274,9 @@ function finalizeProcesso1() {
     }
 }
 
+/**
+ * Aplica um atraso na alocação de processos
+ */
 function applyAllocationDelay() {
     console.log('Applying allocation delay');
     allocationInProgress = true;
@@ -223,6 +287,11 @@ function applyAllocationDelay() {
     activeTimeouts.push(timeout);
 }
 
+/**
+ * Move um processo para a lista de finalizados
+ * @param {string} processName - Nome do processo
+ * @param {string} [emoji='✅'] - Emoji de status do processo
+ */
 function moveToFinalized(processName, emoji = '✅') {
     console.log(`Moving process ${processName} to finalized with emoji ${emoji}`);
     const finalizedList = document.querySelector('.process-column:nth-child(2) .process-list');
@@ -251,6 +320,9 @@ function moveToFinalized(processName, emoji = '✅') {
     finalizedList.scrollTop = finalizedList.scrollHeight;
 }
 
+/**
+ * Move todos os processos para a lista de finalizados com atraso
+ */
 function moveAllToFinalizedWithDelay() {
     console.log('Moving all processes to finalized with delay');
     const boxWrappers = document.querySelectorAll('.box-wrapper');
@@ -282,11 +354,19 @@ function moveAllToFinalizedWithDelay() {
     });
 }
 
+/**
+ * Registra detalhes de cancelamento de processos
+ */
 function logCancellationDetails() {
     const processList = document.querySelector('.process-column:first-child .process-list');
     console.log(`Processos restantes na lista de "Próximos Processos": ${processList.children.length}`);
 }
 
+/**
+ * Registra o cancelamento de um processo
+ * @param {string} processName - Nome do processo
+ * @param {string} location - Local do cancelamento (box ou lista)
+ */
 function logCancellation(processName, location) {
     const remainingExecutions = getRepetitions(processName) - (processCounts[processName] || 0);
     console.log(
@@ -294,6 +374,9 @@ function logCancellation(processName, location) {
     );
 }
 
+/**
+ * Limpa todas as boxes
+ */
 function clearAllBoxes() {
     console.log('Clearing all boxes');
     const progressBars = document.querySelectorAll('.progress');
@@ -302,6 +385,10 @@ function clearAllBoxes() {
     });
 }
 
+/**
+ * Agenda a próxima execução de um processo
+ * @param {string} processName - Nome do processo
+ */
 function scheduleNextExecution(processName) {
     console.log(`Scheduling next execution for process: ${processName}`);
     const timeout = setTimeout(() => {
@@ -314,6 +401,11 @@ function scheduleNextExecution(processName) {
     activeTimeouts.push(timeout);
 }
 
+/**
+ * Retorna o tempo de execução para cada tipo de processo
+ * @param {string} processName - Nome do processo
+ * @returns {number} - Tempo de execução em milissegundos
+ */
 function getProcessTime(processName) {
     console.log(`Getting process time for: ${processName}`);
     let processTime;
@@ -341,6 +433,11 @@ function getProcessTime(processName) {
     return processTime;
 }
 
+/**
+ * Verifica se um processo pode ser executado
+ * @param {string} processName - Nome do processo
+ * @returns {boolean} - Se o processo pode ser executado
+ */
 function canExecuteProcess(processName) {
     console.log(`Checking if process can execute: ${processName}`);
     if (manuallyCancelledProcesses.has(processName)) {
@@ -353,11 +450,20 @@ function canExecuteProcess(processName) {
     return processCounts[processName] < getRepetitions(processName);
 }
 
+/**
+ * Incrementa o contador de execuções de um processo
+ * @param {string} processName - Nome do processo
+ */
 function incrementProcessCount(processName) {
     console.log(`Incrementing process count for: ${processName}`);
     processCounts[processName]++;
 }
 
+/**
+ * Retorna o número de repetições para cada tipo de processo
+ * @param {string} processName - Nome do processo
+ * @returns {number} - Número de repetições
+ */
 function getRepetitions(processName) {
     console.log(`Getting repetitions for process: ${processName}`);
     switch (processName) {
@@ -377,12 +483,20 @@ function getRepetitions(processName) {
     }
 }
 
+/**
+ * Registra informações sobre o processo
+ * @param {string} processName - Nome do processo
+ * @param {HTMLElement} boxWrapper - Elemento container da box
+ */
 function logProcessInfo(processName, boxWrapper) {
     const boxIndex = boxWrapper.getAttribute('data-index');
     const executionCount = processCounts[processName];
     console.log(`Processo: ${processName}, Box: ${boxIndex}, Execução: ${executionCount}`);
 }
 
+/**
+ * Pausa todas as animações e timeouts ativos
+ */
 function pauseAllProcesses() {
     console.log('Pausing all processes');
     activeAnimations.forEach(animation => cancelAnimationFrame(animation));
@@ -392,6 +506,9 @@ function pauseAllProcesses() {
     activeTimeouts = [];
 }
 
+/**
+ * Adiciona efeito de hover aos ícones de documento
+ */
 function addHoverEffectToIcons() {
     console.log('Adding hover effect to icons');
     const documentIcons = document.querySelectorAll('.document-icon span');
